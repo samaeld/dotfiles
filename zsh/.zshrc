@@ -1,10 +1,12 @@
-export PATH=$PATH:$HOME/bin:$HOME/bin/work:/home/linuxbrew/.linuxbrew/bin:/usr/lib/qt6/bin/:$HOME/.local/bin
+export PATH=$HOME/bin:$HOME/bin/work:/home/linuxbrew/.linuxbrew/bin:/usr/lib/qt6/bin/:$HOME/.local/bin:/opt/flutter/bin:$HOME/.cargo/bin:$PATH
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk
 
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 [ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
 [ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "${ZINIT_HOME}/zinit.zsh"
+
+source /usr/share/nvm/init-nvm.sh
 
 ## Options section
 setopt correct                                                  # Auto correct mistakes
