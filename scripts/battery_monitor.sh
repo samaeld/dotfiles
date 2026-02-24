@@ -10,15 +10,18 @@ send_notification() {
 }
 
 udevadm monitor --udev --subsystem-match=power_supply --property |
-while true; do
-    dev=""
-    status=""
-    capacity=""
+    while true; do
+        dev=""
+        status=""
+        capacity=""
+        type=""
+        model_name=""
+        manufacturer=""
 
-    while read -r line; do
-        [[ -z "$line" ]] && break
+        while read -r line; do
+            [[ -z "$line" ]] && break
 
-        case "$line" in
+            case "$line" in
             POWER_SUPPLY_NAME=*)
                 dev=${line#*=}
                 ;;
@@ -28,27 +31,42 @@ while true; do
             POWER_SUPPLY_CAPACITY=*)
                 capacity=${line#*=}
                 ;;
-        esac
-    done
+            POWER_SUPPLY_TYPE=*)
+                type=${line#*=}
+                ;;
+            POWER_SUPPLY_MODEL_NAME=*)
+                model_name=${line#*=}
+                ;;
+            POWER_SUPPLY_MANUFACTURER=*)
+                manufacturer=${line#*=}
+                ;;
+            esac
+        done
 
-    if [[ -n "$dev" && -n "$status" ]]; then
-        if [[ "${last_status[$dev]}" != "$status" || "${last_capacity[$dev]}" != "$capacity" ]]; then
-            last_status["$dev"]="$status"
-            last_capacity["$dev"]="$capacity"
+        if [[ -n "$dev" && -n "$status" ]]; then
+            if [[ "${last_status[$dev]}" != "$status" || "${last_capacity[$dev]}" != "$capacity" ]]; then
+                last_status["$dev"]="$status"
+                last_capacity["$dev"]="$capacity"
 
-            case "$status" in
+                dev_name=""
+                if [ "$manufacturer" == "OEM" ]; then
+                    dev_name="$type"
+                else
+                    dev_name="$model_name"
+                fi
+
+                case "$status" in
                 Charging)
-                    send_notification "$dev" "Charging started"
+                    send_notification "$dev_name" "Charging started"
                     ;;
                 Discharging)
                     if [[ -n "$capacity" && "$capacity" -le 20 ]]; then
-                        send_notification "$dev" "Low battery: ${capacity}%"
+                        send_notification "$dev_name" "Low battery: ${capacity}%"
                     else
-                        send_notification "$dev" "Discharging"
+                        send_notification "$dev_name" "Discharging"
                     fi
                     ;;
-            esac
+                esac
+            fi
         fi
-    fi
-done
-
+    done
