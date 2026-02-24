@@ -151,5 +151,34 @@ fe() {
     [[ -n "$files" ]] && ${EDITOR:-vim} "${files[@]}"
 }
 
+auto_venv() {
+    local dir="$PWD"
+    local venv_path=""
+
+    while [[ "$dir" != "/" ]]; do
+        for venv_name in venv .venv env .env virtualenv; do
+            if [[ -f "$dir/$venv_name/bin/activate" ]]; then
+                venv_path="$dir/$venv_name"
+                break 2
+            fi
+        done
+        dir=${dir:h}
+    done
+    
+    if [[ -n "$venv_path" ]]; then
+        if [[ "$VIRTUAL_ENV" != "$venv_path" ]]; then
+            [[ -n "$VIRTUAL_ENV" ]] && deactivate 2>/dev/null
+            source "$venv_path/bin/activate"
+        fi
+    else
+        [[ -n "$VIRTUAL_ENV" ]] && deactivate 2>/dev/null
+    fi
+}
+
+autoload -U add-zsh-hook
+add-zsh-hook chpwd auto_venv
+
+auto_venv
+
 # brew section
 [ -d /home/linuxbrew/.linuxbrew ] && eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
