@@ -41,6 +41,7 @@
             "title<.*youtube.*>": " ",
             "class<firefox>": " ",
             "class<zen>": " ",
+            "class<zen-browser>": " ",
             "class<teams-for-linux>": " ",
             "class<kitty>": "󰄛 ",
             "class<chat-gpt>": " ",
